@@ -133,6 +133,7 @@ def check_date(version_table: dict, date: datetime.date) -> list:
 
 
 def get_matches(date_headers: dict, resp_headers: dict, version_table: dict) -> list:
+    unmatched_date=""
     matches = []
     for header in date_headers.keys():
         if header in resp_headers:
@@ -141,8 +142,9 @@ def get_matches(date_headers: dict, resp_headers: dict, version_table: dict) -> 
                 matches.extend(check_date(version_table, date))
     if len(matches) == 0 and 'date' in locals():  # if no matching but data return add as debug log
         logger.debug(f"no matching for : {date.strftime('%b %d %Y')}")
+        unmatched_date = str(date.strftime('%b %d %Y'))
+    return matches,unmatched_date
 
-    return matches
 
 
 def strip_url(fullurl: str) -> str:
@@ -263,6 +265,8 @@ def main():
         # Total of responses per target
         total_responses = 0
 
+        # returned date Etag if unmatched
+        unknown_version = ""
         # Check for the presence of each static resource.
         for resource in static_resources:
             try:
@@ -282,7 +286,7 @@ def main():
                 total_responses += len(resp_headers)
             # Convert date-related HTTP headers to a standardized format, and
             # store any matching version strings.
-            resource_matches = get_matches(date_headers, resp_headers, version_table)
+            resource_matches,unknown_version = get_matches(date_headers, resp_headers, version_table)
             for match in resource_matches:
                 match["resource"] = resource
             total_matches.extend(resource_matches)
@@ -314,7 +318,8 @@ def main():
 
         if not len(total_matches):
             logger.error("no matching versions found for : " + target_to_scan)
-            continue
+            results = {"target": target_to_print, "unmatch": {}, "etag": unknown_version}
+
         else:
             closest = sorted(total_matches, key=lambda x: x["precision"], reverse=True)[0]
             results["match"] = closest

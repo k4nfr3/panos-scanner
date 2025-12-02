@@ -16,18 +16,22 @@ Palo Alto's GlobalProtect portal, a feature of PAN-OS, has been the subject of
 To assist PAN-OS users in patching their firewalls, this scanner examines the `Last-Modified` and `ETag` HTTP response headers for several static web resources, and associates those values with specific PAN-OS releases. For example, note the `ETag` in the following HTTP response from the GlobalProtect portal login page:
 
 ```
-$ curl -skI https://example.com/global-protect/login.esp
+$ curl -skI https://example.com/login/images/favicon.ico
 HTTP/1.1 200 OK
-Content-Type: text/html; charset=UTF-8
+Date: Tue, 02 Dec 2025 20:37:26 GMT
+Content-Type: image/x-icon
+Content-Length: 720
 Connection: keep-alive
-ETag: "6e185d5daf9a"
+ETag: "6901103a-2d0"
+Cache-Control: max-age=86400
+Accept-Ranges: bytes
 ```
 
-Examining the last 8 characters of the `ETag` gives us the hexadecimal epoch time `5d5daf9a`, represented as `1566420890` in decimal format. We can convert this epoch time to a human-readable format using the UNIX `date` utility:
-
+Examining the last 8 characters of the `ETag` before the "-" gives us the hexadecimal epoch time `6901103a`, represented as `1761677370` in decimal format. We can convert this epoch time to a human-readable format using the UNIX `date` utility:
+Note : old format was just the first 8 chars, there was no "-"
 ```
-$ date -d @1566420890
-Wed 21 Aug 2019 08:54:50 PM UTC
+$ date -d @1761677370
+Tue Oct 28 18:49:30 UTC 2025
 ```
 
 Using the attached `version-table.txt`, we can determine that this instance of GlobalProtect portal is running on PAN-OS version `8.1.10`, and is therefore vulnerable to 
@@ -79,12 +83,12 @@ In the following example, `https://example.com/global-protect/portal/images/favi
 ```
 $ python3 panos-scanner.py -s -t https://example.com | jq '.match'
 {
-  "date": "2018-05-04",
-  "versions": [
-    "8.0.10"
-  ],
-  "precision": "exact",
-  "resource": "global-protect/portal/images/favicon.ico"
+    "date": "2025-10-28",
+    "versions": [
+      "11.2.7-h4"
+    ],
+    "precision": "exact",
+    "resource": "login/images/favicon.ico"
 }
 ```
 

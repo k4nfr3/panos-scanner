@@ -48,20 +48,30 @@ This scanner automates the process described above, suggesting an exact (or appr
 $ git clone https://github.com/noperator/panos-scanner.git
 ```
 
+### Install dependencies
+```
+$ pip install -r requirements.txt
+```
+
 ### Usage
 
 Note that this script requires `version-table.txt` in the same directory.
 
 ```
 $ python3 panos-scanner.py -h
-usage: Determine the software version of a remote PAN-OS target. Requires version-table.txt in the same directory.
-       [-h] [-v] [-s] [-c] -t TARGET
+usage: panos-scanner.py [-h] [-v] [-s] [-cve] [-i] (-t TARGET | -f FILE)
 
-optional arguments:
+Determine the software version of a remote PAN-OS target. Requires version-table.txt in the same directory. See https://security.paloaltonetworks.com/?product=PAN-OS for security
+advisories for specific PAN-OS versions.
+
+options:
   -h, --help  show this help message and exit
-  -v          verbose output
+  -v          verbose output (-v for verbose, -vv for very verbose with full headers)
   -s          stop after one exact match
-  -t TARGET   https://example.com
+  -cve        Add link to official PAN security advisory page
+  -i          Disable TLS certificate verification (NOT recommended).
+  -t TARGET   https://gp.example.com or gp.example.com
+  -f FILE     inputfile. One target per line. See target format
 ```
 
 In the following example, `https://example.com/global-protect/portal/images/favicon.ico` has an HTTP response header that indicates that it's running PAN-OS version `8.0.10`.
@@ -140,10 +150,13 @@ Thanks [@k4nfr3](https://github.com/k4nfr3) for providing updates to the version
 
 ### To-do
 
-- [x] Stop after one exact match
+- [x] <del>Stop after one exact match</del>
 - [x] Simplify output
-- [x] Support verbose CLI option
-- [x] Perhaps output JSON instead, to be processed with `jq`
+- [x] <del>Support verbose CLI option</del>
+- [x] <del>Process target from input file</del>
+- [x] <del>Perhaps output JSON instead, to be processed with `jq`</del>
+- [x] <del>Add link to CVE PaloAltoNetworks Page</del>
+
 
 ### License
 
